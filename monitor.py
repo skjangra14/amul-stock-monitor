@@ -28,16 +28,22 @@ def check_stock(url):
         timeout=30
     )
 
-    print("HTTP Status:", response.status_code)
-
     text = response.text
 
-    print("PAGE LENGTH:", len(text))
+    keywords = [
+        "__NEXT_DATA__",
+        "graphql",
+        "api",
+        "product",
+        "inventory",
+        "variant",
+        "stock"
+    ]
 
-    print(text[:2000])
+    for k in keywords:
+        print(k, "=>", k.lower() in text.lower())
 
     return False
-
 for name, url in PRODUCTS.items():
 
     print(f"Checking {name}")
