@@ -21,29 +21,22 @@ def send_telegram(message):
 
 def check_stock(url):
 
-    alias = url.split("/")[-1]
-
-    api_url = (
-        "https://shop.amul.com/api/1/entity/ms.products"
-        f'?q={{"alias":"{alias}"}}&limit=1'
-    )
-
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "application/json, text/plain, */*",
-        "frontend": "1",
-        "Referer": url,
-        "base_url": url
-    }
-
-    response = requests.get(
-        api_url,
-        headers=headers,
+    r = requests.get(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"},
         timeout=30
     )
 
-    print("Status:", response.status_code)
-    print(response.text[:1000])
+    text = r.text.lower()
+
+    for word in [
+        "notify me",
+        "add to cart",
+        "buy now",
+        "sold out",
+        "out of stock"
+    ]:
+        print(word, "=>", word in text)
 
     return False
     
