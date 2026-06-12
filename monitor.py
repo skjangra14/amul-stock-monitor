@@ -33,15 +33,11 @@ def check_stock(page, url):
         timeout=60000
     )
 
-    content = page.content().lower()
+    body = page.locator("body").inner_text()
 
-    if "sold out" in content:
-        return False
+    print(body[:5000])
 
-    if "notify me" in content:
-        return False
-
-    return True
+    return False
 
 
 with sync_playwright() as p:
