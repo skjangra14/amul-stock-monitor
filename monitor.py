@@ -21,18 +21,29 @@ def send_telegram(message):
 
 def check_stock(url):
 
+    alias = url.split("/")[-1]
+
     api_url = (
         "https://shop.amul.com/api/1/entity/ms.products"
-        '?q={"alias":"amul-high-protein-rose-lassi-200-ml-or-pack-of-30"}&limit=1'
+        f'?q={{"alias":"{alias}"}}&limit=1'
     )
 
-    response = requests.get(api_url, timeout=30)
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json, text/plain, */*",
+        "frontend": "1",
+        "Referer": url,
+        "base_url": url
+    }
+
+    response = requests.get(
+        api_url,
+        headers=headers,
+        timeout=30
+    )
 
     print("Status:", response.status_code)
-
-    data = response.json()
-
-    print(json.dumps(data, indent=2)[:5000])
+    print(response.text[:1000])
 
     return False
     
