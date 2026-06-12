@@ -1,6 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+import json
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
@@ -16,7 +17,7 @@ def send_telegram(message):
         data={"chat_id": CHAT_ID, "text": message}
     )
 
-import json
+
 
 def check_stock(url):
 
