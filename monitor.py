@@ -17,18 +17,42 @@ def send_telegram(message):
     )
 
 def check_stock(url):
-    headers = {"User-Agent": "Mozilla/5.0"}
-    r = requests.get(url, headers=headers, timeout=30)
 
-    text = r.text.lower()
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
-    if "sold out" in text or "out of stock" in text:
+    response = requests.get(
+        url,
+        headers=headers,
+        timeout=30
+    )
+
+    print("HTTP Status:", response.status_code)
+
+    text = response.text.lower()
+
+    print("Contains 'sold out'?", "sold out" in text)
+    print("Contains 'out of stock'?", "out of stock" in text)
+
+    if "sold out" in text:
+        return False
+
+    if "out of stock" in text:
         return False
 
     return True
 
 for name, url in PRODUCTS.items():
-    if check_stock(url):
+
+    print(f"Checking {name}")
+    print(url)
+
+    result = check_stock(url)
+
+    print(f"Available = {result}")
+
+    if result:
         send_telegram(
             f"🚨 STOCK AVAILABLE 🚨\n\n{name}\n\n{url}"
         )
