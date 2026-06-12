@@ -30,18 +30,13 @@ def check_stock(url):
 
     print("HTTP Status:", response.status_code)
 
-    text = response.text.lower()
+    text = response.text
 
-    print("Contains 'sold out'?", "sold out" in text)
-    print("Contains 'out of stock'?", "out of stock" in text)
+    print("PAGE LENGTH:", len(text))
 
-    if "sold out" in text:
-        return False
+    print(text[:2000])
 
-    if "out of stock" in text:
-        return False
-
-    return True
+    return False
 
 for name, url in PRODUCTS.items():
 
