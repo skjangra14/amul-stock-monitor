@@ -1,55 +1,72 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-import json
+from playwright.sync_api import sync_playwright
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
 
 PRODUCTS = {
-    "Plain Lassi": "https://shop.amul.com/en/product/amul-high-protein-plain-lassi-200-ml-or-pack-of-30",
-    "Rose Lassi": "https://shop.amul.com/en/product/amul-high-protein-rose-lassi-200-ml-or-pack-of-30",
+    "Plain Lassi":
+    "https://shop.amul.com/en/product/amul-high-protein-plain-lassi-200-ml-or-pack-of-30",
+
+    "Rose Lassi":
+    "https://shop.amul.com/en/product/amul-high-protein-rose-lassi-200-ml-or-pack-of-30"
 }
 
+
 def send_telegram(message):
+
     requests.post(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        data={"chat_id": CHAT_ID, "text": message}
+        data={
+            "chat_id": CHAT_ID,
+            "text": message
+        }
     )
 
 
+def check_stock(page, url):
 
-def check_stock(url):
-
-    r = requests.get(
+    page.goto(
         url,
-        headers={"User-Agent": "Mozilla/5.0"},
-        timeout=30
+        wait_until="networkidle",
+        timeout=60000
     )
 
-    text = r.text.lower()
+    content = page.content().lower()
 
-    for word in [
-        "notify me",
-        "add to cart",
-        "buy now",
-        "sold out",
-        "out of stock"
-    ]:
-        print(word, "=>", word in text)
+    if "sold out" in content:
+        return False
 
-    return False
-    
-for name, url in PRODUCTS.items():
+    if "notify me" in content:
+        return False
 
-    print(f"Checking {name}")
-    print(url)
+    return True
 
-    result = check_stock(url)
 
-    print(f"Available = {result}")
+with sync_playwright() as p:
 
-    if result:
-        send_telegram(
-            f"🚨 STOCK AVAILABLE 🚨\n\n{name}\n\n{url}"
+    browser = p.chromium.launch(
+        headless=True
+    )
+
+    page = browser.new_page()
+
+    for name, url in PRODUCTS.items():
+
+        available = check_stock(
+            page,
+            url
         )
+
+        print(name, available)
+
+        if available:
+
+            send_telegram(
+                f"🚨 AMUL STOCK ALERT 🚨\n\n"
+                f"{name} is available!\n\n"
+                f"{url}"
+            )
+
+    browser.close()
