@@ -16,34 +16,25 @@ def send_telegram(message):
         data={"chat_id": CHAT_ID, "text": message}
     )
 
+import json
+
 def check_stock(url):
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    response = requests.get(
-        url,
-        headers=headers,
-        timeout=30
+    api_url = (
+        "https://shop.amul.com/api/1/entity/ms.products"
+        '?q={"alias":"amul-high-protein-rose-lassi-200-ml-or-pack-of-30"}&limit=1'
     )
 
-    text = response.text
+    response = requests.get(api_url, timeout=30)
 
-    keywords = [
-        "__NEXT_DATA__",
-        "graphql",
-        "api",
-        "product",
-        "inventory",
-        "variant",
-        "stock"
-    ]
+    print("Status:", response.status_code)
 
-    for k in keywords:
-        print(k, "=>", k.lower() in text.lower())
+    data = response.json()
+
+    print(json.dumps(data, indent=2)[:5000])
 
     return False
+    
 for name, url in PRODUCTS.items():
 
     print(f"Checking {name}")
